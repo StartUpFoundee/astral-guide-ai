@@ -10,10 +10,11 @@ const VideoBackground = () => {
         loop
         playsInline
         className="absolute h-full w-full object-cover"
+        style={{ minHeight: '100vh', minWidth: '100vw' }}
       >
         <source src="/bg.mp4" type="video/mp4" />
       </video>
-      <div className="absolute inset-0 bg-black/30" /> {/* Optional overlay to ensure text remains readable */}
+      <div className="absolute inset-0 bg-black/30" />
     </div>
   );
 };

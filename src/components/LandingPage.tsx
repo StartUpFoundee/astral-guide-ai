@@ -13,7 +13,7 @@ const LandingPage = () => {
       
       <div className="relative z-10 text-center space-y-8 animate-fade-in">
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif text-white/90 tracking-wide">
-          🔮 Welcome to AI Pandit
+          🔮 Welcome to AIPandit
         </h1>
         <p className="text-xl md:text-2xl text-purple-200/80 font-light">
           Your Personal Astrology Guide
