@@ -1,12 +1,14 @@
 
 import { useNavigate } from 'react-router-dom';
 import StarBackground from './StarBackground';
+import VideoBackground from './VideoBackground';
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1A1F2C] to-[#2C1A2F] overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#1A1F2C]/50 to-[#2C1A2F]/50 overflow-hidden">
+      <VideoBackground />
       <StarBackground />
       
       <div className="relative z-10 text-center space-y-8 animate-fade-in">
