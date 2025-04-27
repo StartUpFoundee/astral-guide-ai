@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   dateOfBirth: z.date({
@@ -33,6 +35,7 @@ const formSchema = z.object({
 
 const BirthDetails = () => {
   const setUserDetails = useUserStore((state) => state.setUserDetails);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,7 +51,19 @@ const BirthDetails = () => {
       timeOfBirth: values.timeOfBirth,
       placeOfBirth: values.placeOfBirth,
     });
-    // We'll handle navigation in the next step
+    // Navigate to next page after submission
+    navigate("/questions");
+  };
+
+  // Generate year options for the year selector
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 121 }, (_, i) => currentYear - i);
+
+  const handleYearChange = (year: string) => {
+    const currentDate = form.getValues("dateOfBirth") || new Date();
+    const newDate = new Date(currentDate);
+    newDate.setFullYear(parseInt(year));
+    form.setValue("dateOfBirth", newDate);
   };
 
   return (
@@ -69,13 +84,27 @@ const BirthDetails = () => {
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel className="text-white/80">Date of Birth</FormLabel>
+                  <div className="flex gap-3 mb-2">
+                    <Select onValueChange={handleYearChange}>
+                      <SelectTrigger className="bg-white/5 border-purple-500/30 text-white">
+                        <SelectValue placeholder="Year" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[15rem]">
+                        {years.map((year) => (
+                          <SelectItem key={year} value={year.toString()}>
+                            {year}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
+                            "w-full pl-3 text-left font-normal bg-white/5 border-purple-500/30 text-white hover:bg-white/10",
                             !field.value && "text-muted-foreground"
                           )}
                         >
