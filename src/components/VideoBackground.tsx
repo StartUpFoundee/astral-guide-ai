@@ -9,6 +9,7 @@ const VideoBackground = () => {
         muted
         loop
         playsInline
+        preload="auto"
         className="absolute h-full w-full object-cover"
         style={{ minHeight: '100vh', minWidth: '100vw' }}
       >
@@ -20,4 +21,3 @@ const VideoBackground = () => {
 };
 
 export default VideoBackground;
-
