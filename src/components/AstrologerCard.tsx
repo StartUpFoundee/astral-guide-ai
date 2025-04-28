@@ -11,6 +11,9 @@ interface AstrologerCardProps {
 }
 
 const AstrologerCard = ({ name, image, experience, expertise }: AstrologerCardProps) => {
+  // Add .webp to the image URL to ensure it loads correctly
+  const fullImageUrl = `${image}?auto=format&fit=crop&w=150&q=80`;
+  
   return (
     <div className="bg-gradient-to-br from-purple-900/10 to-indigo-900/10 backdrop-blur-sm
                     border border-purple-500/20 rounded-lg p-6
@@ -20,7 +23,7 @@ const AstrologerCard = ({ name, image, experience, expertise }: AstrologerCardPr
         <HoverCard>
           <HoverCardTrigger>
             <Avatar className="h-16 w-16 border-2 border-purple-500/30">
-              <AvatarImage src={image} alt={name} />
+              <AvatarImage src={fullImageUrl} alt={name} />
               <AvatarFallback>
                 <UserRound className="h-8 w-8 text-purple-300" />
               </AvatarFallback>
