@@ -19,7 +19,7 @@ const LandingPage = () => {
           Your Personal Astrology Guide
         </p>
         <button
-          onClick={() => navigate('/birth-details')}
+          onClick={() => navigate('/enter-details')}
           className="px-8 py-3 bg-gradient-to-r from-purple-500/80 to-fuchsia-600/80 rounded-full
                      text-white font-medium tracking-wide
                      transform hover:scale-105 transition-all duration-300
