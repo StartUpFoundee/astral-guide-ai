@@ -1,11 +1,10 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import AstrologerCard from '@/components/AstrologerCard';
 
 // Mock data for astrologers
-const astrologersByCategory = {
+export const astrologersByCategory = {
   1: { // Love
     title: "Love",
     astrologers: [
