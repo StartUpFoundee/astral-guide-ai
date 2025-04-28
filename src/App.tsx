@@ -8,6 +8,7 @@ import LandingPage from "./components/LandingPage";
 import BirthDetails from "./pages/BirthDetails";
 import EnterDetails from "./pages/EnterDetails";
 import Categories from "./pages/Categories";
+import CategoryDetails from "./pages/CategoryDetails";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/birth-details" element={<BirthDetails />} />
           <Route path="/enter-details" element={<EnterDetails />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/category/:id" element={<CategoryDetails />} />
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
       </BrowserRouter>
