@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserRound, ArrowLeft, Send } from "lucide-react";
+import { toast } from "sonner";
 import ChatMessage from '@/components/ChatMessage';
+import SubscriptionDialog from '@/components/SubscriptionDialog';
 import { astrologersByCategory } from './CategoryDetails';
 
 interface Message {
@@ -15,20 +17,29 @@ interface Message {
   timestamp: string;
 }
 
+const FREE_MESSAGES_LIMIT = 5;
+
 export default function ChatBox() {
   const { categoryId, astrologerId } = useParams();
   const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [showSubscription, setShowSubscription] = useState(false);
+  const [userMessageCount, setUserMessageCount] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
-  // Find the astrologer based on the URL params
   const category = astrologersByCategory[Number(categoryId) as keyof typeof astrologersByCategory];
   const astrologer = category?.astrologers.find(
     a => a.name.toLowerCase().replace(/\s+/g, '-') === astrologerId
   );
 
   useEffect(() => {
+    // Load message count from localStorage
+    const savedCount = localStorage.getItem('userMessageCount');
+    if (savedCount) {
+      setUserMessageCount(parseInt(savedCount));
+    }
+
     // Send welcome message when chat opens
     if (astrologer && messages.length === 0) {
       const welcomeMessage = {
@@ -50,6 +61,11 @@ export default function ChatBox() {
   const handleSend = () => {
     if (!input.trim()) return;
 
+    if (userMessageCount >= FREE_MESSAGES_LIMIT) {
+      setShowSubscription(true);
+      return;
+    }
+
     // Add user message
     const userMessage = {
       text: input,
@@ -59,6 +75,16 @@ export default function ChatBox() {
     
     setMessages(prev => [...prev, userMessage]);
     setInput("");
+
+    // Update message count
+    const newCount = userMessageCount + 1;
+    setUserMessageCount(newCount);
+    localStorage.setItem('userMessageCount', newCount.toString());
+
+    // Show subscription dialog when limit is reached
+    if (newCount === FREE_MESSAGES_LIMIT) {
+      toast.warning("You have used all your free questions. Subscribe to continue chatting!");
+    }
 
     // Simulate astrologer response after 1 second
     setTimeout(() => {
@@ -130,18 +156,25 @@ export default function ChatBox() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Type your question here..."
+              placeholder={userMessageCount >= FREE_MESSAGES_LIMIT ? "Subscribe to ask more questions" : "Type your question here..."}
               className="bg-purple-950/20 border-purple-500/20 text-white placeholder:text-purple-300/50"
+              disabled={userMessageCount >= FREE_MESSAGES_LIMIT}
             />
             <Button 
               onClick={handleSend}
               className="bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={userMessageCount >= FREE_MESSAGES_LIMIT}
             >
               <Send className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </div>
+
+      <SubscriptionDialog 
+        open={showSubscription} 
+        onOpenChange={setShowSubscription}
+      />
     </div>
   );
-};
+}
