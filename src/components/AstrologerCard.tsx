@@ -1,4 +1,4 @@
-
+import { useNavigate, useParams } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import { UserRound } from "lucide-react";
@@ -11,14 +11,25 @@ interface AstrologerCardProps {
 }
 
 const AstrologerCard = ({ name, image, experience, expertise }: AstrologerCardProps) => {
-  // Add .webp to the image URL to ensure it loads correctly
+  const navigate = useNavigate();
+  const { id: categoryId } = useParams();
   const fullImageUrl = `${image}?auto=format&fit=crop&w=150&q=80`;
   
+  const handleClick = () => {
+    // For now using the name as a simple ID, in production we'd use proper IDs
+    const astrologerId = name.toLowerCase().replace(/\s+/g, '-');
+    navigate(`/chat/${categoryId}/${astrologerId}`);
+  };
+  
   return (
-    <div className="bg-gradient-to-br from-purple-900/10 to-indigo-900/10 backdrop-blur-sm
-                    border border-purple-500/20 rounded-lg p-6
-                    transform transition-all duration-300 hover:scale-105
-                    hover:shadow-lg hover:shadow-purple-500/10">
+    <div 
+      onClick={handleClick}
+      className="bg-gradient-to-br from-purple-900/10 to-indigo-900/10 backdrop-blur-sm
+                border border-purple-500/20 rounded-lg p-6
+                transform transition-all duration-300 hover:scale-105
+                hover:shadow-lg hover:shadow-purple-500/10
+                cursor-pointer"
+    >
       <div className="flex items-center gap-4">
         <HoverCard>
           <HoverCardTrigger>
