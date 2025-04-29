@@ -22,7 +22,7 @@ const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gradient-to-b from-purple-900/90 to-black/90 border border-purple-500/30 shadow-[0_0_30px_10px_rgba(147,51,234,0.1)] max-w-md">
+      <DialogContent className="bg-gradient-to-b from-purple-900/90 to-black/90 border border-purple-500/30 shadow-[0_0_30px_10px_rgba(147,51,234,0.1)] max-w-md animate-scale-in">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif text-center bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent pb-2">
             Unlock Unlimited Consultations
@@ -33,7 +33,7 @@ const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => 
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <div className="p-4 rounded-lg bg-purple-950/50 border border-purple-500/20 space-y-2">
+          <div className="p-4 rounded-lg bg-purple-950/50 border border-purple-500/20 space-y-2 hover:shadow-[0_0_15px_5px_rgba(147,51,234,0.07)] transition-shadow">
             <h3 className="text-lg font-medium text-white flex items-center justify-between">
               Monthly Plan
               <span className="text-amber-300">₹250/month</span>
@@ -47,7 +47,7 @@ const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => 
             </Button>
           </div>
 
-          <div className="p-4 rounded-lg bg-gradient-to-b from-purple-800/30 to-purple-900/30 border border-purple-400/30 space-y-2">
+          <div className="p-4 rounded-lg bg-gradient-to-b from-purple-800/30 to-purple-900/30 border border-purple-400/30 space-y-2 hover:shadow-[0_0_15px_5px_rgba(147,51,234,0.07)] transition-shadow">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium text-white">Yearly Plan</h3>
               <div className="text-right">

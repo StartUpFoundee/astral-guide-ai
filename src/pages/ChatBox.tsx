@@ -5,11 +5,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserRound, ArrowLeft, Send } from "lucide-react";
+import { UserRound, ArrowLeft, Send, Loader } from "lucide-react";
 import { toast } from "sonner";
 import ChatMessage from '@/components/ChatMessage';
 import SubscriptionDialog from '@/components/SubscriptionDialog';
 import { astrologersByCategory } from './CategoryDetails';
+import { getRandomAstrologyResponse } from '@/utils/astrologyResponses';
 
 interface Message {
   text: string;
@@ -26,6 +27,7 @@ export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [showSubscription, setShowSubscription] = useState(false);
   const [userMessageCount, setUserMessageCount] = useState(0);
+  const [isAstrologerTyping, setIsAstrologerTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   const category = astrologersByCategory[Number(categoryId) as keyof typeof astrologersByCategory];
@@ -34,20 +36,25 @@ export default function ChatBox() {
   );
 
   useEffect(() => {
-    // Load message count from localStorage
-    const savedCount = localStorage.getItem('userMessageCount');
-    if (savedCount) {
-      setUserMessageCount(parseInt(savedCount));
-    }
-
-    // Send welcome message when chat opens
-    if (astrologer && messages.length === 0) {
+    // Load messages from localStorage
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    } else if (astrologer && messages.length === 0) {
+      // Send welcome message when chat opens and no saved messages
       const welcomeMessage = {
         text: `Namaste! I'm ${astrologer.name}. I specialize in ${astrologer.expertise}. Please feel free to ask your questions about your future.`,
         isAstrologer: true,
         timestamp: new Date().toLocaleTimeString()
       };
       setMessages([welcomeMessage]);
+      localStorage.setItem('chatMessages', JSON.stringify([welcomeMessage]));
+    }
+
+    // Load message count from localStorage
+    const savedCount = localStorage.getItem('userMessageCount');
+    if (savedCount) {
+      setUserMessageCount(parseInt(savedCount));
     }
   }, [astrologer]);
 
@@ -55,6 +62,11 @@ export default function ChatBox() {
     // Scroll to bottom when new messages arrive
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+    
+    // Save messages to localStorage whenever messages change
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
     }
   }, [messages]);
 
@@ -86,15 +98,21 @@ export default function ChatBox() {
       toast.warning("You have used all your free questions. Subscribe to continue chatting!");
     }
 
-    // Simulate astrologer response after 1 second
+    // Show typing indicator
+    setIsAstrologerTyping(true);
+
+    // Simulate astrologer response after 2-3 seconds
+    const typingDelay = Math.floor(Math.random() * 1000) + 2000; // 2-3 seconds
+    
     setTimeout(() => {
       const astrologerMessage = {
-        text: "Thank you for your question. I'll carefully analyze your birth chart and provide you with insights shortly.",
+        text: getRandomAstrologyResponse(),
         isAstrologer: true,
         timestamp: new Date().toLocaleTimeString()
       };
       setMessages(prev => [...prev, astrologerMessage]);
-    }, 1000);
+      setIsAstrologerTyping(false);
+    }, typingDelay);
   };
 
   if (!astrologer) {
@@ -144,6 +162,23 @@ export default function ChatBox() {
                 timestamp={message.timestamp}
               />
             ))}
+            
+            {isAstrologerTyping && (
+              <div className="flex items-center gap-2 ml-2 mb-4">
+                <Avatar className="h-8 w-8 border-2 border-purple-500/30">
+                  <AvatarImage src={astrologer.image} />
+                  <AvatarFallback>
+                    <UserRound className="h-4 w-4 text-purple-300" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="bg-gradient-to-br from-amber-700/20 to-amber-800/20 text-white border border-amber-500/20 rounded-2xl px-4 py-2">
+                  <div className="flex items-center gap-1">
+                    <span className="text-amber-200 text-sm">Typing</span>
+                    <Loader className="h-3 w-3 text-amber-200 animate-spin" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
       </div>

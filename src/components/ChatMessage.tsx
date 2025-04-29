@@ -28,8 +28,8 @@ const ChatMessage = ({ message, isAstrologer, astrologerImage, astrologerName, t
       <div className={cn(
         "max-w-[80%] rounded-2xl px-4 py-2",
         isAstrologer 
-          ? "bg-gradient-to-br from-purple-900/20 to-indigo-900/20 text-white border border-purple-500/20"
-          : "bg-gradient-to-br from-purple-500/20 to-indigo-500/20 text-white border border-purple-400/20"
+          ? "bg-gradient-to-br from-amber-700/20 to-amber-800/20 text-white border border-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.1)]"
+          : "bg-gradient-to-br from-blue-600/20 to-indigo-600/20 text-white border border-blue-400/20 shadow-[0_0_8px_rgba(96,165,250,0.1)]"
       )}>
         <p className="text-sm">{message}</p>
         {timestamp && (
@@ -37,9 +37,9 @@ const ChatMessage = ({ message, isAstrologer, astrologerImage, astrologerName, t
         )}
       </div>
       {!isAstrologer && (
-        <Avatar className="h-8 w-8 bg-purple-500/20 border-2 border-purple-500/30">
+        <Avatar className="h-8 w-8 bg-blue-500/20 border-2 border-blue-500/30">
           <AvatarFallback>
-            <UserRound className="h-4 w-4 text-purple-300" />
+            <UserRound className="h-4 w-4 text-blue-300" />
           </AvatarFallback>
         </Avatar>
       )}
