@@ -23,6 +23,7 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useUserStore } from "@/store/userStore";
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -36,6 +37,7 @@ const formSchema = z.object({
 export default function EnterDetails() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { setUserDetails } = useUserStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,7 +49,17 @@ export default function EnterDetails() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    // Save to user store
+    setUserDetails({
+      name: values.fullName,
+      dateOfBirth: values.dateOfBirth,
+      timeOfBirth: values.timeOfBirth,
+      placeOfBirth: values.placeOfBirth
+    });
+    
+    // Also save to localStorage for backward compatibility
     localStorage.setItem("userDetails", JSON.stringify(values));
+    
     toast({
       title: "Details saved successfully!",
       description: "Redirecting to categories...",

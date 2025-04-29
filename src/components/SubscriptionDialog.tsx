@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useUserStore } from "@/store/userStore";
 
 interface SubscriptionDialogProps {
   open: boolean;
@@ -15,8 +16,12 @@ interface SubscriptionDialogProps {
 }
 
 const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => {
+  const { setSubscription } = useUserStore();
+
   const handleSubscribe = (plan: 'monthly' | 'yearly') => {
-    toast.info("Subscription feature coming soon!");
+    // In a real app, this would integrate with a payment provider
+    setSubscription(true);
+    toast.success(`Successfully subscribed to the ${plan} plan!`);
     onOpenChange(false);
   };
 

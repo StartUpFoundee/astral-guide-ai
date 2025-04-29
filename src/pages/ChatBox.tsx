@@ -11,6 +11,7 @@ import ChatMessage from '@/components/ChatMessage';
 import SubscriptionDialog from '@/components/SubscriptionDialog';
 import { astrologersByCategory } from '@/utils/astrologerData';
 import { getRandomAstrologyResponse } from '@/utils/astrologyResponses';
+import { useUserStore } from '@/store/userStore';
 
 interface Message {
   text: string;
@@ -18,17 +19,22 @@ interface Message {
   timestamp: string;
 }
 
-const FREE_MESSAGES_LIMIT = 5;
-
 export default function ChatBox() {
   const { categoryId, astrologerId } = useParams();
   const navigate = useNavigate();
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [showSubscription, setShowSubscription] = useState(false);
-  const [userMessageCount, setUserMessageCount] = useState(0);
   const [isAstrologerTyping, setIsAstrologerTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Use the enhanced user store
+  const { 
+    incrementQuestionCount, 
+    hasReachedFreeLimit, 
+    remainingQuestions,
+    hasSubscription
+  } = useUserStore();
   
   const category = astrologersByCategory[Number(categoryId) as keyof typeof astrologersByCategory];
   const astrologer = category?.astrologers.find(
@@ -37,7 +43,7 @@ export default function ChatBox() {
 
   useEffect(() => {
     // Load messages from localStorage
-    const savedMessages = localStorage.getItem('chatMessages');
+    const savedMessages = localStorage.getItem(`chatMessages-${astrologerId}`);
     if (savedMessages) {
       setMessages(JSON.parse(savedMessages));
     } else if (astrologer && messages.length === 0) {
@@ -48,15 +54,14 @@ export default function ChatBox() {
         timestamp: new Date().toLocaleTimeString()
       };
       setMessages([welcomeMessage]);
-      localStorage.setItem('chatMessages', JSON.stringify([welcomeMessage]));
+      localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify([welcomeMessage]));
     }
 
-    // Load message count from localStorage
-    const savedCount = localStorage.getItem('userMessageCount');
-    if (savedCount) {
-      setUserMessageCount(parseInt(savedCount));
+    // Check if user has reached free limit on initial load
+    if (hasReachedFreeLimit() && !hasSubscription) {
+      toast.warning("You have used all your free questions. Subscribe to continue chatting!");
     }
-  }, [astrologer]);
+  }, [astrologer, astrologerId, hasReachedFreeLimit, hasSubscription]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -65,15 +70,16 @@ export default function ChatBox() {
     }
     
     // Save messages to localStorage whenever messages change
-    if (messages.length > 0) {
-      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    if (messages.length > 0 && astrologerId) {
+      localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify(messages));
     }
-  }, [messages]);
+  }, [messages, astrologerId]);
 
   const handleSend = () => {
     if (!input.trim()) return;
 
-    if (userMessageCount >= FREE_MESSAGES_LIMIT) {
+    // Check if user has reached free limit
+    if (hasReachedFreeLimit() && !hasSubscription) {
       setShowSubscription(true);
       return;
     }
@@ -88,14 +94,17 @@ export default function ChatBox() {
     setMessages(prev => [...prev, userMessage]);
     setInput("");
 
-    // Update message count
-    const newCount = userMessageCount + 1;
-    setUserMessageCount(newCount);
-    localStorage.setItem('userMessageCount', newCount.toString());
+    // Increment question count
+    incrementQuestionCount();
 
     // Show subscription dialog when limit is reached
-    if (newCount === FREE_MESSAGES_LIMIT) {
+    if (hasReachedFreeLimit() && !hasSubscription) {
       toast.warning("You have used all your free questions. Subscribe to continue chatting!");
+    } else {
+      const remaining = remainingQuestions();
+      if (remaining <= 3 && remaining > 0 && !hasSubscription) {
+        toast.info(`You have ${remaining} free questions remaining.`);
+      }
     }
 
     // Show typing indicator
@@ -118,11 +127,10 @@ export default function ChatBox() {
   const clearChat = () => {
     // Clear chat messages
     setMessages([]);
-    localStorage.removeItem('chatMessages');
     
-    // Reset message count
-    setUserMessageCount(0);
-    localStorage.removeItem('userMessageCount');
+    if (astrologerId) {
+      localStorage.removeItem(`chatMessages-${astrologerId}`);
+    }
     
     // Add welcome message again
     if (astrologer) {
@@ -132,7 +140,9 @@ export default function ChatBox() {
         timestamp: new Date().toLocaleTimeString()
       };
       setMessages([welcomeMessage]);
-      localStorage.setItem('chatMessages', JSON.stringify([welcomeMessage]));
+      if (astrologerId) {
+        localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify([welcomeMessage]));
+      }
     }
     
     toast.success("Chat history cleared successfully");
@@ -141,6 +151,9 @@ export default function ChatBox() {
   if (!astrologer) {
     return <div>Astrologer not found</div>;
   }
+
+  const isDisabled = hasReachedFreeLimit() && !hasSubscription;
+  const remainingQuestionsCount = remainingQuestions();
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -167,17 +180,29 @@ export default function ChatBox() {
             </Button>
           </div>
           
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12 border-2 border-purple-500/30">
-              <AvatarImage src={astrologer.image} />
-              <AvatarFallback>
-                <UserRound className="h-6 w-6 text-purple-300" />
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-xl font-medium text-white">{astrologer.name}</h2>
-              <p className="text-sm text-purple-300">{astrologer.expertise}</p>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12 border-2 border-purple-500/30">
+                <AvatarImage src={astrologer.image} />
+                <AvatarFallback>
+                  <UserRound className="h-6 w-6 text-purple-300" />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h2 className="text-xl font-medium text-white">{astrologer.name}</h2>
+                <p className="text-sm text-purple-300">{astrologer.expertise}</p>
+              </div>
             </div>
+            
+            {!hasSubscription && (
+              <div className="bg-purple-800/30 px-3 py-1 rounded-full text-xs text-purple-200 border border-purple-500/30">
+                {isDisabled 
+                  ? "0 questions left" 
+                  : remainingQuestionsCount === Infinity 
+                    ? "Unlimited" 
+                    : `${remainingQuestionsCount} question${remainingQuestionsCount !== 1 ? 's' : ''} left`}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -225,14 +250,14 @@ export default function ChatBox() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder={userMessageCount >= FREE_MESSAGES_LIMIT ? "Subscribe to ask more questions" : "Type your question here..."}
+              placeholder={isDisabled ? "Subscribe to ask more questions" : "Type your question here..."}
               className="bg-purple-950/20 border-purple-500/20 text-white placeholder:text-purple-300/50"
-              disabled={userMessageCount >= FREE_MESSAGES_LIMIT}
+              disabled={isDisabled}
             />
             <Button 
               onClick={handleSend}
               className="bg-purple-600 hover:bg-purple-700 text-white"
-              disabled={userMessageCount >= FREE_MESSAGES_LIMIT}
+              disabled={isDisabled}
             >
               <Send className="h-4 w-4" />
             </Button>
