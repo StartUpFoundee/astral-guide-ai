@@ -5,11 +5,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserRound, ArrowLeft, Send, Loader } from "lucide-react";
+import { UserRound, ArrowLeft, Send, Loader, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import ChatMessage from '@/components/ChatMessage';
 import SubscriptionDialog from '@/components/SubscriptionDialog';
-import { astrologersByCategory } from './CategoryDetails';
+import { astrologersByCategory } from '@/utils/astrologerData';
 import { getRandomAstrologyResponse } from '@/utils/astrologyResponses';
 
 interface Message {
@@ -115,6 +115,29 @@ export default function ChatBox() {
     }, typingDelay);
   };
 
+  const clearChat = () => {
+    // Clear chat messages
+    setMessages([]);
+    localStorage.removeItem('chatMessages');
+    
+    // Reset message count
+    setUserMessageCount(0);
+    localStorage.removeItem('userMessageCount');
+    
+    // Add welcome message again
+    if (astrologer) {
+      const welcomeMessage = {
+        text: `Namaste! I'm ${astrologer.name}. I specialize in ${astrologer.expertise}. Please feel free to ask your questions about your future.`,
+        isAstrologer: true,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      setMessages([welcomeMessage]);
+      localStorage.setItem('chatMessages', JSON.stringify([welcomeMessage]));
+    }
+    
+    toast.success("Chat history cleared successfully");
+  };
+
   if (!astrologer) {
     return <div>Astrologer not found</div>;
   }
@@ -124,14 +147,25 @@ export default function ChatBox() {
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 bg-gradient-to-b from-purple-900/30 to-transparent backdrop-blur-sm border-b border-purple-500/20 z-10">
         <div className="max-w-3xl mx-auto p-4">
-          <Button 
-            variant="ghost" 
-            className="mb-4 text-purple-300 hover:text-purple-200 hover:bg-purple-950/30"
-            onClick={() => navigate(`/category/${categoryId}`)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Astrologers
-          </Button>
+          <div className="flex items-center justify-between mb-4">
+            <Button 
+              variant="ghost" 
+              className="text-purple-300 hover:text-purple-200 hover:bg-purple-950/30"
+              onClick={() => navigate(`/category/${categoryId}`)}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Astrologers
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="text-red-400 hover:text-red-300 hover:bg-red-950/30"
+              onClick={clearChat}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear Chat
+            </Button>
+          </div>
           
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12 border-2 border-purple-500/30">
