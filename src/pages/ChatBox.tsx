@@ -203,6 +203,13 @@ export default function ChatBox() {
                     : `${remainingQuestionsCount} question${remainingQuestionsCount !== 1 ? 's' : ''} left`}
               </div>
             )}
+            
+            {hasSubscription && (
+              <div className="bg-green-800/30 px-3 py-1 rounded-full text-xs text-green-200 border border-green-500/30 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 bg-green-400 rounded-full"></span>
+                Premium
+              </div>
+            )}
           </div>
         </div>
       </div>
