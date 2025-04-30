@@ -59,7 +59,7 @@ export default function ChatBox() {
 
     // Check if user has reached free limit on initial load
     if (hasReachedFreeLimit() && !hasSubscription) {
-      toast.warning("You have used all your free questions. Subscribe to continue chatting!");
+      setShowSubscription(true);
     }
   }, [astrologer, astrologerId, hasReachedFreeLimit, hasSubscription]);
 
@@ -99,7 +99,7 @@ export default function ChatBox() {
 
     // Show subscription dialog when limit is reached
     if (hasReachedFreeLimit() && !hasSubscription) {
-      toast.warning("You have used all your free questions. Subscribe to continue chatting!");
+      setShowSubscription(true);
     } else {
       const remaining = remainingQuestions();
       if (remaining <= 3 && remaining > 0 && !hasSubscription) {
@@ -195,19 +195,20 @@ export default function ChatBox() {
             </div>
             
             {!hasSubscription && (
-              <div className="bg-purple-800/30 px-3 py-1 rounded-full text-xs text-purple-200 border border-purple-500/30">
-                {isDisabled 
-                  ? "0 questions left" 
-                  : remainingQuestionsCount === Infinity 
-                    ? "Unlimited" 
-                    : `${remainingQuestionsCount} question${remainingQuestionsCount !== 1 ? 's' : ''} left`}
+              <div className="bg-purple-800/30 px-3 py-1 rounded-full text-xs text-purple-200 border border-purple-500/30 flex items-center gap-1">
+                <span className="text-purple-200">Status: </span>
+                <span className="font-medium">Free User</span>
+                {remainingQuestionsCount !== Infinity && (
+                  <span className="ml-1">({remainingQuestionsCount} question{remainingQuestionsCount !== 1 ? 's' : ''} left)</span>
+                )}
               </div>
             )}
             
             {hasSubscription && (
               <div className="bg-green-800/30 px-3 py-1 rounded-full text-xs text-green-200 border border-green-500/30 flex items-center gap-1">
                 <span className="h-1.5 w-1.5 bg-green-400 rounded-full"></span>
-                Premium
+                <span className="text-green-200">Status: </span>
+                <span className="font-medium">Premium</span>
               </div>
             )}
           </div>

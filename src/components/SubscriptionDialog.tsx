@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/userStore";
+import { Check } from "lucide-react";
 
 interface SubscriptionDialogProps {
   open: boolean;
@@ -30,10 +31,10 @@ const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => 
       <DialogContent className="bg-gradient-to-b from-purple-900/90 to-black/90 border border-purple-500/30 shadow-[0_0_30px_10px_rgba(147,51,234,0.1)] max-w-md animate-scale-in">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif text-center bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent pb-2">
-            Unlock Unlimited Consultations
+            You've used your 5 free questions
           </DialogTitle>
           <DialogDescription className="text-purple-200/80 text-center">
-            Continue your spiritual journey with unlimited access to our expert astrologers
+            Unlock unlimited access to your AI astrologer by subscribing
           </DialogDescription>
         </DialogHeader>
 
@@ -43,7 +44,16 @@ const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => 
               Monthly Plan
               <span className="text-amber-300">₹250/month</span>
             </h3>
-            <p className="text-sm text-purple-200/70">Perfect for regular consultations</p>
+            <ul className="space-y-1 mt-2 mb-3">
+              <li className="text-sm text-purple-200/70 flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-400" />
+                Unlimited questions
+              </li>
+              <li className="text-sm text-purple-200/70 flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-400" />
+                Priority responses
+              </li>
+            </ul>
             <Button 
               onClick={() => handleSubscribe('monthly')}
               className="w-full mt-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-none"
@@ -56,11 +66,24 @@ const SubscriptionDialog = ({ open, onOpenChange }: SubscriptionDialogProps) => 
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium text-white">Yearly Plan</h3>
               <div className="text-right">
-                <span className="text-amber-300">₹2000/year</span>
-                <p className="text-xs text-green-400">Save ₹1000</p>
+                <span className="text-amber-300">₹2,000/year</span>
+                <p className="text-xs text-green-400">Save ₹1,000</p>
               </div>
             </div>
-            <p className="text-sm text-purple-200/70">Best value for dedicated seekers</p>
+            <ul className="space-y-1 mt-2 mb-3">
+              <li className="text-sm text-purple-200/70 flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-400" />
+                Unlimited questions
+              </li>
+              <li className="text-sm text-purple-200/70 flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-400" />
+                Priority responses
+              </li>
+              <li className="text-sm text-purple-200/70 flex items-center">
+                <Check className="h-4 w-4 mr-2 text-green-400" />
+                Exclusive cosmic insights
+              </li>
+            </ul>
             <Button 
               onClick={() => handleSubscribe('yearly')}
               className="w-full mt-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white border-none"
