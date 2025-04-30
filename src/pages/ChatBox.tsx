@@ -52,26 +52,71 @@ export default function ChatBox() {
       return;
     }
 
+    // Store last active session
+    localStorage.setItem('lastAstrologer', astrologerId || '');
+    localStorage.setItem('lastCategory', categoryId || '');
+
     // Load messages from localStorage
     const savedMessages = localStorage.getItem(`chatMessages-${astrologerId}`);
     if (savedMessages) {
       setMessages(JSON.parse(savedMessages));
     } else if (astrologer && messages.length === 0) {
       // Send welcome message when chat opens and no saved messages
-      const welcomeMessage = {
-        text: `Namaste! I'm ${astrologer.name}. I specialize in ${astrologer.expertise}. Please feel free to ask your questions about your future.`,
+      let welcomeMessage = '';
+      
+      // Personalize welcome message based on astrologer
+      switch(astrologer.name.split(' ')[0]) { // Use first name for matching
+        case 'Jayvant':
+          welcomeMessage = `Namaste! I'm ${astrologer.name}, a friendly astrologer specializing in ${astrologer.expertise}. How may I assist you today?`;
+          break;
+        case 'Aarya':
+          welcomeMessage = `Namaste! I'm ${astrologer.name}, a traditional astrologer following ancient Vedic principles. I specialize in ${astrologer.expertise}. What guidance do you seek?`;
+          break;
+        case 'Ved':
+          welcomeMessage = `Om Shanti! I'm ${astrologer.name}, a spiritual guide with expertise in ${astrologer.expertise}. Let's explore your cosmic journey together.`;
+          break;
+        case 'Tara':
+          welcomeMessage = `Hello! I'm ${astrologer.name}, a logical and analytical astrologer specializing in ${astrologer.expertise}. I use precise calculations for accurate readings.`;
+          break;
+        case 'Omkar':
+          welcomeMessage = `Greetings! I'm ${astrologer.name}, a practical astrologer focused on ${astrologer.expertise}. I provide actionable insights you can apply to your life.`;
+          break;
+        default:
+          welcomeMessage = `Namaste! I'm ${astrologer.name}. I specialize in ${astrologer.expertise}. Please feel free to ask your questions about your future.`;
+      }
+      
+      const welcomeMsg = {
+        text: welcomeMessage,
         isAstrologer: true,
         timestamp: new Date().toLocaleTimeString()
       };
-      setMessages([welcomeMessage]);
-      localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify([welcomeMessage]));
+      
+      setMessages([welcomeMsg]);
+      localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify([welcomeMsg]));
     }
 
     // Check if user has reached free limit on initial load
     if (hasReachedFreeLimit()) {
       setShowSubscription(true);
     }
-  }, [astrologer, astrologerId, hasReachedFreeLimit, hasSubscription, name, dateOfBirth, timeOfBirth, navigate]);
+    
+    // Check if user is returning after 24+ hours
+    const lastVisit = localStorage.getItem('lastVisitTime');
+    const currentTime = new Date().getTime();
+    
+    if (lastVisit) {
+      const hoursDiff = (currentTime - parseInt(lastVisit)) / (1000 * 60 * 60);
+      
+      // If returning after 24+ hours and still has questions
+      if (hoursDiff >= 24 && !hasReachedFreeLimit() && remainingQuestions() > 0) {
+        toast.info(`Welcome back! You still have ${remainingQuestions()} free question${remainingQuestions() !== 1 ? 's' : ''} left.`);
+      }
+    }
+    
+    // Update last visit time
+    localStorage.setItem('lastVisitTime', currentTime.toString());
+    
+  }, [astrologer, astrologerId, categoryId, hasReachedFreeLimit, hasSubscription, name, dateOfBirth, timeOfBirth, navigate, remainingQuestions]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
@@ -120,12 +165,51 @@ export default function ChatBox() {
     // Show typing indicator
     setIsAstrologerTyping(true);
 
+    // Personalize response based on astrologer personality and category focus
+    const getPersonalizedResponse = () => {
+      if (!astrologer) return getRandomAstrologyResponse();
+      
+      const personality = astrologer.name.split(' ')[0]; // Get first name
+      const expertise = astrologer.expertise;
+      const userQuestion = input.trim();
+      
+      // Get response with personalization based on astrologer personality
+      let response = '';
+      
+      switch(personality) {
+        case 'Jayvant':
+          // Friendly tone
+          response = getRandomAstrologyResponse() + " I'm happy to provide more insight on this if you'd like!";
+          break;
+        case 'Aarya':
+          // Traditional tone
+          response = "According to ancient Vedic teachings, " + getRandomAstrologyResponse();
+          break;
+        case 'Ved':
+          // Spiritual tone
+          response = getRandomAstrologyResponse() + " Remember that your spiritual journey is unique and divinely guided.";
+          break;
+        case 'Tara':
+          // Logical tone
+          response = "Based on astrological calculations, " + getRandomAstrologyResponse() + " This is supported by planetary positions in your chart.";
+          break;
+        case 'Omkar':
+          // Practical tone
+          response = getRandomAstrologyResponse() + " Here's what you can do about it: reflect on your priorities, take small but consistent actions, and remain patient.";
+          break;
+        default:
+          response = getRandomAstrologyResponse();
+      }
+      
+      return response;
+    };
+    
     // Simulate astrologer response after 2-3 seconds
     const typingDelay = Math.floor(Math.random() * 1000) + 2000; // 2-3 seconds
     
     setTimeout(() => {
       const astrologerMessage = {
-        text: getRandomAstrologyResponse(),
+        text: getPersonalizedResponse(),
         isAstrologer: true,
         timestamp: new Date().toLocaleTimeString()
       };
@@ -144,14 +228,39 @@ export default function ChatBox() {
     
     // Add welcome message again
     if (astrologer) {
-      const welcomeMessage = {
-        text: `Namaste! I'm ${astrologer.name}. I specialize in ${astrologer.expertise}. Please feel free to ask your questions about your future.`,
+      // Personalize welcome message based on astrologer
+      let welcomeMessage = '';
+      
+      switch(astrologer.name.split(' ')[0]) { // Use first name for matching
+        case 'Jayvant':
+          welcomeMessage = `Namaste! I'm ${astrologer.name}, a friendly astrologer specializing in ${astrologer.expertise}. How may I assist you today?`;
+          break;
+        case 'Aarya':
+          welcomeMessage = `Namaste! I'm ${astrologer.name}, a traditional astrologer following ancient Vedic principles. I specialize in ${astrologer.expertise}. What guidance do you seek?`;
+          break;
+        case 'Ved':
+          welcomeMessage = `Om Shanti! I'm ${astrologer.name}, a spiritual guide with expertise in ${astrologer.expertise}. Let's explore your cosmic journey together.`;
+          break;
+        case 'Tara':
+          welcomeMessage = `Hello! I'm ${astrologer.name}, a logical and analytical astrologer specializing in ${astrologer.expertise}. I use precise calculations for accurate readings.`;
+          break;
+        case 'Omkar':
+          welcomeMessage = `Greetings! I'm ${astrologer.name}, a practical astrologer focused on ${astrologer.expertise}. I provide actionable insights you can apply to your life.`;
+          break;
+        default:
+          welcomeMessage = `Namaste! I'm ${astrologer.name}. I specialize in ${astrologer.expertise}. Please feel free to ask your questions about your future.`;
+      }
+      
+      const welcomeMsg = {
+        text: welcomeMessage,
         isAstrologer: true,
         timestamp: new Date().toLocaleTimeString()
       };
-      setMessages([welcomeMessage]);
+      
+      setMessages([welcomeMsg]);
+      
       if (astrologerId) {
-        localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify([welcomeMessage]));
+        localStorage.setItem(`chatMessages-${astrologerId}`, JSON.stringify([welcomeMsg]));
       }
     }
     
