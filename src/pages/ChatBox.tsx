@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,7 +32,10 @@ export default function ChatBox() {
     incrementQuestionCount, 
     hasReachedFreeLimit, 
     remainingQuestions,
-    hasSubscription
+    hasSubscription,
+    name,
+    dateOfBirth,
+    timeOfBirth
   } = useUserStore();
   
   const category = astrologersByCategory[Number(categoryId) as keyof typeof astrologersByCategory];
@@ -42,6 +44,13 @@ export default function ChatBox() {
   );
 
   useEffect(() => {
+    // Check if we have user details
+    if (!name || !dateOfBirth || !timeOfBirth) {
+      toast.error("Please enter your details first");
+      navigate("/enter-details");
+      return;
+    }
+
     // Load messages from localStorage
     const savedMessages = localStorage.getItem(`chatMessages-${astrologerId}`);
     if (savedMessages) {
@@ -58,10 +67,10 @@ export default function ChatBox() {
     }
 
     // Check if user has reached free limit on initial load
-    if (hasReachedFreeLimit() && !hasSubscription) {
+    if (hasReachedFreeLimit()) {
       setShowSubscription(true);
     }
-  }, [astrologer, astrologerId, hasReachedFreeLimit, hasSubscription]);
+  }, [astrologer, astrologerId, hasReachedFreeLimit, hasSubscription, name, dateOfBirth, timeOfBirth, navigate]);
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive
