@@ -10,6 +10,7 @@ import EnterDetails from "./pages/EnterDetails";
 import Categories from "./pages/Categories";
 import CategoryDetails from "./pages/CategoryDetails";
 import ChatBox from "./pages/ChatBox";
+import History from "./pages/History";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => {
             <Route path="/categories" element={<Categories />} />
             <Route path="/category/:id" element={<CategoryDetails />} />
             <Route path="/chat/:categoryId/:astrologerId" element={<ChatBox />} />
+            <Route path="/history" element={<History />} />
             <Route path="*" element={
               initialPath !== '/' ? <Navigate to={initialPath} replace /> : <div>Not Found</div>
             } />

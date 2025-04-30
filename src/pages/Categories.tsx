@@ -1,7 +1,7 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Heart, Users, Briefcase, LifeBuoy, DollarSign, HelpCircle, Home } from 'lucide-react';
 import { Card } from "@/components/ui/card";
+import NavLinks from '@/components/NavLinks';
 
 const categories = [
   { id: 1, name: 'Love', icon: Heart, color: 'from-pink-500 to-rose-500' },
@@ -17,7 +17,7 @@ export default function Categories() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen bg-black text-white">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 animate-fade-in">
           <h1 className="text-4xl font-serif mb-4">Choose Your Path</h1>
@@ -48,6 +48,9 @@ export default function Categories() {
           })}
         </div>
       </div>
+      
+      {/* Add NavLinks at the bottom */}
+      <NavLinks />
     </div>
   );
 }

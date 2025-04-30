@@ -1,9 +1,10 @@
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import AstrologerCard from '@/components/AstrologerCard';
 import { astrologersByCategory } from '@/utils/astrologerData';
+import React from 'react';
+import NavLinks from '@/components/NavLinks';
 
 export default function CategoryDetails() {
   const { id } = useParams();
@@ -46,6 +47,9 @@ export default function CategoryDetails() {
           ))}
         </div>
       </div>
+      
+      {/* Add NavLinks at the bottom */}
+      <NavLinks />
     </div>
   );
-};
+}

@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +8,7 @@ import { UserRound, ArrowLeft, Send, Loader, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import ChatMessage from '@/components/ChatMessage';
 import SubscriptionDialog from '@/components/SubscriptionDialog';
+import NavLinks from '@/components/NavLinks';
 import { astrologersByCategory } from '@/utils/astrologerData';
 import { getRandomAstrologyResponse } from '@/utils/astrologyResponses';
 import { useUserStore } from '@/store/userStore';
@@ -17,6 +17,14 @@ interface Message {
   text: string;
   isAstrologer: boolean;
   timestamp: string;
+}
+
+interface HistoryItem {
+  question: string;
+  answer: string;
+  timestamp: string;
+  astrologer: string;
+  category: string;
 }
 
 export default function ChatBox() {
@@ -139,11 +147,15 @@ export default function ChatBox() {
       return;
     }
 
+    // Current timestamp
+    const timestamp = new Date().toLocaleTimeString();
+    const fullTimestamp = new Date().toISOString();
+    
     // Add user message
     const userMessage = {
       text: input,
       isAstrologer: false,
-      timestamp: new Date().toLocaleTimeString()
+      timestamp
     };
     
     setMessages(prev => [...prev, userMessage]);
@@ -208,13 +220,34 @@ export default function ChatBox() {
     const typingDelay = Math.floor(Math.random() * 1000) + 2000; // 2-3 seconds
     
     setTimeout(() => {
+      const astrologerResponse = getPersonalizedResponse();
       const astrologerMessage = {
-        text: getPersonalizedResponse(),
+        text: astrologerResponse,
         isAstrologer: true,
         timestamp: new Date().toLocaleTimeString()
       };
       setMessages(prev => [...prev, astrologerMessage]);
       setIsAstrologerTyping(false);
+      
+      // Store this Q&A pair in history
+      const userIdentifier = getUserIdentifier();
+      if (userIdentifier) {
+        // Get existing history or initialize new array
+        const historyKey = `questionHistory-${userIdentifier}`;
+        const existingHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        
+        // Add new question-answer pair
+        const historyItem: HistoryItem = {
+          question: input.trim(),
+          answer: astrologerResponse,
+          timestamp: fullTimestamp,
+          astrologer: astrologer?.name || 'Unknown',
+          category: category?.name || 'General'
+        };
+        
+        // Update localStorage with new history item
+        localStorage.setItem(historyKey, JSON.stringify([...existingHistory, historyItem]));
+      }
     }, typingDelay);
   };
 
@@ -335,8 +368,8 @@ export default function ChatBox() {
       </div>
 
       {/* Chat Messages */}
-      <div className="max-w-3xl mx-auto pt-32 pb-24 px-4">
-        <ScrollArea className="h-[calc(100vh-theme(spacing.32)-theme(spacing.24))]" ref={scrollAreaRef}>
+      <div className="max-w-3xl mx-auto pt-32 pb-32 px-4">
+        <ScrollArea className="h-[calc(100vh-theme(spacing.32)-theme(spacing.32))]" ref={scrollAreaRef}>
           <div className="space-y-4">
             {messages.map((message, index) => (
               <ChatMessage
@@ -370,7 +403,7 @@ export default function ChatBox() {
       </div>
 
       {/* Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent">
+      <div className="fixed bottom-16 left-0 right-0 bg-gradient-to-t from-black to-transparent">
         <div className="max-w-3xl mx-auto p-4">
           <div className="flex gap-2">
             <Input
@@ -391,6 +424,9 @@ export default function ChatBox() {
           </div>
         </div>
       </div>
+      
+      {/* Navigation Links */}
+      <NavLinks />
 
       <SubscriptionDialog 
         open={showSubscription} 
